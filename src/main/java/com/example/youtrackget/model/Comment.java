@@ -1,3 +1,4 @@
+
 package com.example.youtrackget.model;
 
 import java.util.HashMap;
@@ -12,18 +13,44 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
+    "author",
+    "text",
     "id",
     "$type"
 })
 @Generated("jsonschema2pojo")
-public class Id {
+public class Comment {
 
+    @JsonProperty("author")
+    private Author author;
+    @JsonProperty("text")
+    private String text;
     @JsonProperty("id")
     private String id;
     @JsonProperty("$type")
     private String $type;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    @JsonProperty("author")
+    public Author getAuthor() {
+        return author;
+    }
+
+    @JsonProperty("author")
+    public void setAuthor(Author author) {
+        this.author = author;
+    }
+
+    @JsonProperty("text")
+    public String getText() {
+        return text;
+    }
+
+    @JsonProperty("text")
+    public void setText(String text) {
+        this.text = text;
+    }
 
     @JsonProperty("id")
     public String getId() {
