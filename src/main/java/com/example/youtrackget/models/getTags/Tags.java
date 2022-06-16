@@ -1,10 +1,21 @@
-package com.example.youtrackget.models;
+package com.example.youtrackget.models.getTags;
+
+import java.util.List;
 
 public class Tags {
 
+    private List<Issue> issues = null;
     private String name;
     private String id;
     private String $type;
+
+    public List<Issue> getIssues() {
+        return issues;
+    }
+
+    public void setIssues(List<Issue> issues) {
+        this.issues = issues;
+    }
 
     public String getName() {
         return name;
@@ -32,6 +43,8 @@ public class Tags {
 
     @Override
     public String toString() {
-        return "\nTag name: " + name + "\nid: " + id + "\n";
+        return "Tag: " + name
+                + "\nid: " + id
+                + "\nissues that contain this tag: " + issues.stream().toList() + "\n\n";
     }
 }

@@ -1,4 +1,4 @@
-package com.example.youtrackget.models;
+package com.example.youtrackget.models.task;
 
 public class Comment {
 

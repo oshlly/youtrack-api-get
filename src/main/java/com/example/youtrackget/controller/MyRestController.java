@@ -1,48 +1,42 @@
 package com.example.youtrackget.controller;
 
-import com.example.youtrackget.models.FullTask;
-import com.example.youtrackget.models.Tags;
-import com.example.youtrackget.models.addTag.Id;
+import com.example.youtrackget.models.task.FullTask;
+import com.example.youtrackget.models.getTags.Tags;
 import com.example.youtrackget.models.addTag.addTagClass;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 public class MyRestController {
 
-    InputStreamReader inputStreamReader = new InputStreamReader(System.in);
-    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
     RestTemplate restTemplate = new RestTemplate();
 
     @Value("${auth.token}")
     private String authToken;
 
-    @Value("${url.get}")
-    private String urlGetIssues;
-
     @Value("${url.post}")
     private String urlPost;
 
-    HttpHeaders headers = new HttpHeaders();
-    final HttpEntity<String> authHeader = new HttpEntity<>(headers);
+    @Value("${url.get}")
+    private String urlGetIssues;
 
-    @GetMapping(value = "/all-issues")
-    public void getFullIssues() {
+    HttpHeaders headers = new HttpHeaders();
+    HttpEntity<String> authHeader = new HttpEntity<>(headers);
+
+    public String getIssues(String url) {
 
         headers.set("Authorization", authToken);
 
-        ResponseEntity<List<FullTask>> response = restTemplate.exchange(urlGetIssues,
+        ResponseEntity<List<FullTask>> response = restTemplate.exchange(url,
                 HttpMethod.GET,
                 authHeader,
                 new ParameterizedTypeReference<>() {
@@ -52,18 +46,30 @@ public class MyRestController {
 
         assert issues != null;
 
-        System.out.println(issues.stream()
+        return issues.stream()
                 .map(FullTask::toString)
-                .collect(Collectors.joining()));
+                .collect(Collectors.joining());
+    }
 
-        System.out.println("\nSuccess");
+    @GetMapping(value = "/all-issues")
+    public String getFullIssues() {
+
+        return getIssues(urlGetIssues);
+    }
+
+    @GetMapping("/all-issues/sort-by-version")
+    public String getSortedIssues(String version) {
+
+        String sorted = urlGetIssues + "&query=version:" + version;
+
+        return getIssues(sorted);
     }
 
     @Value("${tags.list}")
     private String urlTags;
 
     @GetMapping("/all-tags")
-    public void getTags() {
+    public String getTags() {
 
         headers.set("Authorization", authToken);
 
@@ -77,69 +83,26 @@ public class MyRestController {
 
         assert tags != null;
 
-        System.out.println(tags.stream()
+        return tags.stream()
                 .map(Tags::toString)
-                .collect(Collectors.joining()));
-
-        System.out.println("\nSuccess");
+                .collect(Collectors.joining());
     }
 
     @PostMapping("/add-tag")
-    public void setTag() throws IOException {
+    public String setTag(@RequestBody addTagClass addTag) {
 
         headers.set("Authorization", authToken);
 
-        System.out.println("\nEnter issue Id: ");
-        String writeIssueId = bufferedReader.readLine();
+        String urlTagAdd = urlPost + "/" + addTag.getIssueId() + "?fields=tags(id,name)";
 
-        String urlTagAdd = urlPost + "/" + writeIssueId + "?fields=tags(id,name)";
-
-        System.out.println("\nEnter tag Id: ");
-        String writeTagId = bufferedReader.readLine();
-
-        addTagClass addTags = new addTagClass();
-
-        List<Id> tags = new ArrayList<>();
-        Id tag = new Id();
-        tag.setId(writeTagId);
-        tags.add(0, tag);
-
-        addTags.setTags(tags);
-
-        HttpEntity<addTagClass> entity = new HttpEntity<>(addTags, headers);
+        HttpEntity<addTagClass> entity = new HttpEntity<>(addTag, headers);
 
         restTemplate.exchange(urlTagAdd,
                 HttpMethod.POST,
                 entity,
                 addTagClass.class);
 
-        System.out.println("\nSuccess");
+        return "Success";
     }
-
-//    @DeleteMapping("/delete-specific-tag")
-//    public void deleteSpecificTag() throws IOException {
-
-//        headers.set("Authorization", authToken);
-
-//        System.out.println("\nEnter issue Id: ");
-//        String writeIssueId = bufferedReader.readLine();
-
-//        System.out.println("\nEnter tag Id: ");
-//        String writeTagId = bufferedReader.readLine();
-
-//        String urlTagDelete = urlPost + "/" + writeIssueId + "/tags/" + writeTagId;
-//        System.out.println(urlTagDelete);
-
-//        restTemplate.exchange(urlTagDelete, HttpMethod.DELETE, authHeader, String.class);
-
-//        System.out.println("Success");
-//    }
-//}
-
-// {
-//    "error": "Not Found",
-//    "error_description": "Entity with id 6-2 not found" ?
-//}
-
 }
 

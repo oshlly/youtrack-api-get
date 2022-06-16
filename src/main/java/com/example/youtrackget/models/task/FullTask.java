@@ -1,4 +1,4 @@
-package com.example.youtrackget.models;
+package com.example.youtrackget.models.task;
 
 import java.util.List;
 
@@ -61,10 +61,10 @@ public class FullTask {
 
     @Override
     public String toString() {
-        return "\nSummary: " + summary
+        return "Summary: " + summary
                 + "\ndescription: " + description
                 + "\nid: " + id
                 + "\ncomments: " + comments.stream().toList()
-                + "\nattachments: " + attachments.stream().toList() + "\n";
+                + "\nattachments: " + attachments.stream().toList() + "\n\n";
     }
 }
